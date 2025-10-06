@@ -239,7 +239,8 @@ ${names}`;
                         reposed: reposedNames,
                     }
                 };
-
+                
+                tg.showAlert(`Отладочное сообщение:\nОтправляю ${totalCount} имен.`);
                 tg.sendData(JSON.stringify(data));
 
                 formContainer.classList.add('hidden');
