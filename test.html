@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Test</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>Test Page</h1>
+    <p>Press the Main Button below to send data.</p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+
+            // Показываем главную кнопку
+            tg.MainButton.setText('Send Test Data');
+            tg.MainButton.show();
+
+            // Обработчик нажатия на кнопку
+            tg.onEvent('mainButtonClicked', function() {
+                const testData = {
+                    status: "ok",
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Показываем алерт ПЕРЕД отправкой
+                tg.showAlert('This alert confirms the button click works. Sending data now...');
+                
+                // Отправляем данные
+                tg.sendData(JSON.stringify(testData));
+            });
+            
+            tg.expand();
+        });
+    </script>
+</body>
+</html>
