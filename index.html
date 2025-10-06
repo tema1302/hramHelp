@@ -9,105 +9,246 @@
     <!-- Подключение скрипта для Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* ... все стили остаются без изменений ... */
-        body { background-color: var(--tg-theme-bg-color, #f3f4f6); color: var(--tg-theme-text-color, #111827); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 1rem; }
-        textarea { background-color: var(--tg-theme-secondary-bg-color, #ffffff); border: 1px solid var(--tg-theme-hint-color, #d1d5db); color: var(--tg-theme-text-color, #111827); }
-        textarea:disabled { background-color: var(--tg-theme-secondary-bg-color, #e5e7eb); cursor: not-allowed; }
-        textarea::placeholder { color: var(--tg-theme-hint-color, #9ca3af); }
-        textarea::-webkit-resizer { display: none; }
+        /* Основной стиль для body, чтобы приложение соответствовало теме Telegram */
+        body {
+            background-color: var(--tg-theme-bg-color, #f3f4f6);
+            color: var(--tg-theme-text-color, #111827);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 1rem;
+        }
+        /* Стилизация текстовых полей */
+        textarea {
+            background-color: var(--tg-theme-secondary-bg-color, #ffffff);
+            border: 1px solid var(--tg-theme-hint-color, #d1d5db);
+            color: var(--tg-theme-text-color, #111827);
+        }
+        textarea:disabled {
+            background-color: var(--tg-theme-secondary-bg-color, #e5e7eb);
+            cursor: not-allowed;
+        }
+        /* Стилизация placeholder в текстовых полях */
+        textarea::placeholder {
+            color: var(--tg-theme-hint-color, #9ca3af);
+        }
+        /* Убираем стандартные стрелки у textarea */
+        textarea::-webkit-resizer {
+            display: none;
+        }
     </style>
 </head>
 <body class="antialiased">
 
     <div id="form-container" class="w-full max-w-lg mx-auto space-y-6">
-        <!-- ... вся HTML-структура формы остается без изменений ... -->
+        <!-- Заголовок -->
         <div class="text-center">
             <h1 class="text-2xl font-bold">Храм св. Александра Невского</h1>
             <p class="text-sm text-gray-500" style="color: var(--tg-theme-hint-color, #6b7280);">Подача записок на поминовение</p>
         </div>
-        <div class="space-y-2"><div class="flex items-center justify-between"><label for="health" class="text-lg font-semibold">О здравии</label><button id="gemini-health-btn" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors flex items-center space-x-2"><span>✨ Помощник</span><svg id="spinner-health" class="animate-spin h-4 w-4 text-blue-700 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button></div><p class="text-xs text-gray-500" style="color: var(--tg-theme-hint-color, #6b7280);">Введите имена в родительном падеже, каждое с новой строки.</p><textarea id="health" rows="6" class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Например:&#10;Марии&#10;Иоанна&#10;Алексия"></textarea></div>
-        <div class="space-y-2"><div class="flex items-center justify-between"><label for="reposed" class="text-lg font-semibold">О упокоении</label><button id="gemini-reposed-btn" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors flex items-center space-x-2"><span>✨ Помощник</span><svg id="spinner-reposed" class="animate-spin h-4 w-4 text-blue-700 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button></div><p class="text-xs text-gray-500" style="color: var(--tg-theme-hint-color, #6b7280);">Введите имена усопших, каждое с новой строки.</p><textarea id="reposed" rows="6" class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Например:&#10;Ольги&#10;Виктора&#10;Нины"></textarea></div>
-        
-        <!-- НОВАЯ ЛОГ-ПАНЕЛЬ -->
-        <div class="mt-4">
-            <h3 class="text-xs font-semibold text-gray-400">Журнал отладки:</h3>
-            <pre id="debug-log" class="text-xs bg-gray-100 text-gray-600 p-2 rounded-lg mt-1 h-24 overflow-y-auto" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+
+        <!-- Форма для записок "О здравии" -->
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                <label for="health" class="text-lg font-semibold">О здравии</label>
+                <button id="gemini-health-btn" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors flex items-center space-x-2">
+                    <span>✨ Помощник</span>
+                    <svg id="spinner-health" class="animate-spin h-4 w-4 text-blue-700 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-xs text-gray-500" style="color: var(--tg-theme-hint-color, #6b7280);">Введите имена в родительном падеже, каждое с новой строки.</p>
+            <textarea 
+                id="health" 
+                rows="6" 
+                class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                placeholder="Например:&#10;Марии&#10;Иоанна&#10;Алексия"></textarea>
+        </div>
+
+        <!-- Форма для записок "О упокоении" -->
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                <label for="reposed" class="text-lg font-semibold">О упокоении</label>
+                <button id="gemini-reposed-btn" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors flex items-center space-x-2">
+                     <span>✨ Помощник</span>
+                    <svg id="spinner-reposed" class="animate-spin h-4 w-4 text-blue-700 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-xs text-gray-500" style="color: var(--tg-theme-hint-color, #6b7280);">Введите имена усопших, каждое с новой строки.</p>
+            <textarea 
+                id="reposed" 
+                rows="6" 
+                class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                placeholder="Например:&#10;Ольги&#10;Виктора&#10;Нины"></textarea>
         </div>
     </div>
-    
+
+    <!-- Контейнер для сообщения об успехе -->
     <div id="success-message" class="hidden text-center p-8">
-        <!-- ... сообщение об успехе без изменений ... -->
-        <svg class="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h2 class="mt-4 text-2xl font-bold">Записка принята!</h2><p class="mt-2 text-gray-600" style="color: var(--tg-theme-hint-color, #4b5563);">Ваши имена переданы для поминовения. Это окно закроется через несколько секунд.</p>
+        <svg class="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h2 class="mt-4 text-2xl font-bold">Записка принята!</h2>
+        <p class="mt-2 text-gray-600" style="color: var(--tg-theme-hint-color, #4b5563);">Ваши имена переданы для поминовения. Это окно закроется через несколько секунд.</p>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const tg = window.Telegram.WebApp;
             tg.ready();
-            // --- НОВЫЙ БЛОК: Настройка логирования ---
-            const debugLog = document.getElementById('debug-log');
-            function log(message) {
-                const timestamp = new Date().toLocaleTimeString();
-                debugLog.textContent = `[${timestamp}] ${message}\n` + debugLog.textContent;
-            }
-            log("Приложение инициализировано. Версия JS: " + tg.version);
-            // --- КОНЕЦ НОВОГО БЛОКА ---
-            
-            // ... остальной код инициализации без изменений ...
+
             const healthTextarea = document.getElementById('health');
             const reposedTextarea = document.getElementById('reposed');
             const formContainer = document.getElementById('form-container');
             const successMessage = document.getElementById('success-message');
-            async function callGeminiAPI(prompt, retries = 3, delay = 1000) { /* ... код без изменений ... */ const apiKey = "AIzaSyDB__GALnbpe_HIqag2tLWFMIZskcPT-oU"; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`; const payload = { contents: [{ parts: [{ text: prompt }] }] }; for (let i = 0; i < retries; i++) { try { const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); } const result = await response.json(); const candidate = result.candidates?.[0]; if (candidate && candidate.content?.parts?.[0]?.text) { return candidate.content.parts[0].text; } else { throw new Error("Invalid response structure from API."); } } catch (error) { console.error(`Attempt ${i + 1} failed:`, error); if (i < retries - 1) { await new Promise(res => setTimeout(res, delay)); delay *= 2; } else { return null; } } } }
-            async function handleGeminiRequest(type, textarea, spinner) { /* ... код без изменений ... */ const names = textarea.value.trim(); if (names === '') { tg.showAlert('Пожалуйста, введите имена для проверки.'); return; } spinner.classList.remove('hidden'); textarea.disabled = true; (type === 'health' ? document.getElementById('gemini-health-btn') : document.getElementById('gemini-reposed-btn')).disabled = true; const listType = type === 'health' ? 'о здравии' : 'о упокоении'; const prompt = `Ты — внимательный и грамотный помощник в православном храме. Тебе дали список имен для записки ${listType}.\nТвоя задача:\n1. Внимательно проверь каждое имя. Если есть очевидные опечатки, исправь их (например, "Алексанр" на "Александра").\n2. Приведи все имена к родительному падежу (отвечает на вопрос "кого?"). Например, "Мария" -> "Марии", "Иоанн" -> "Иоанна".\n3. Если имя кажется неправославным или светским (например, "Роберт", "Жанна"), аккуратно добавь после него в скобках пометку "(в крещении)", чтобы подающий записку мог уточнить.\n4. Сохрани порядок имен.\n5. Отдай результат в виде списка, где каждое имя находится на новой строке. Не добавляй никакой другой текст, только исправленный список имен.\nВот список для обработки:\n${names}`; const result = await callGeminiAPI(prompt); spinner.classList.add('hidden'); textarea.disabled = false; (type === 'health' ? document.getElementById('gemini-health-btn') : document.getElementById('gemini-reposed-btn')).disabled = false; if (result) { textarea.value = result.trim(); textarea.dispatchEvent(new Event('input', { bubbles: true })); } else { tg.showAlert('Не удалось обработать список. Попробуйте еще раз позже.'); } }
-            document.getElementById('gemini-health-btn').addEventListener('click', () => handleGeminiRequest('health', healthTextarea, document.getElementById('spinner-health')));
-            document.getElementById('gemini-reposed-btn').addEventListener('click', () => handleGeminiRequest('reposed', reposedTextarea, document.getElementById('spinner-reposed')));
+            const geminiHealthBtn = document.getElementById('gemini-health-btn');
+            const geminiReposedBtn = document.getElementById('gemini-reposed-btn');
+            const spinnerHealth = document.getElementById('spinner-health');
+            const spinnerReposed = document.getElementById('spinner-reposed');
+
+            // --- Gemini API ---
+            async function callGeminiAPI(prompt, retries = 3, delay = 1000) {
+                const apiKey = "AIzaSyDB__GALnbpe_HIqag2tLWFMIZskcPT-oU";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                };
+
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        const candidate = result.candidates?.[0];
+
+                        if (candidate && candidate.content?.parts?.[0]?.text) {
+                            return candidate.content.parts[0].text;
+                        } else {
+                            throw new Error("Invalid response structure from API.");
+                        }
+                    } catch (error) {
+                        console.error(`Attempt ${i + 1} failed:`, error);
+                        if (i < retries - 1) {
+                            await new Promise(res => setTimeout(res, delay));
+                            delay *= 2; // Экспоненциальная задержка
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+            }
+
+            async function handleGeminiRequest(type, textarea, spinner) {
+                const names = textarea.value.trim();
+                if (names === '') {
+                    tg.showAlert('Пожалуйста, введите имена для проверки.');
+                    return;
+                }
+
+                spinner.classList.remove('hidden');
+                textarea.disabled = true;
+                (type === 'health' ? geminiHealthBtn : geminiReposedBtn).disabled = true;
+
+                const listType = type === 'health' ? 'о здравии' : 'о упокоении';
+                const prompt = `Ты — внимательный и грамотный помощник в православном храме. Тебе дали список имен для записки ${listType}.
+Твоя задача:
+1. Внимательно проверь каждое имя. Если есть очевидные опечатки, исправь их (например, "Алексанр" на "Александра").
+2. Приведи все имена к родительному падежу (отвечает на вопрос "кого?"). Например, "Мария" -> "Марии", "Иоанн" -> "Иоанна".
+3. Если имя кажется неправославным или светским (например, "Роберт", "Жанна"), аккуратно добавь после него в скобках пометку "(в крещении)", чтобы подающий записку мог уточнить.
+4. Сохрани порядок имен.
+5. Отдай результат в виде списка, где каждое имя находится на новой строке. Не добавляй никакой другой текст, только исправленный список имен.
+
+Вот список для обработки:
+${names}`;
+
+                const result = await callGeminiAPI(prompt);
+
+                spinner.classList.add('hidden');
+                textarea.disabled = false;
+                (type === 'health' ? geminiHealthBtn : geminiReposedBtn).disabled = false;
+
+                if (result) {
+                    textarea.value = result.trim();
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                } else {
+                    tg.showAlert('Не удалось обработать список. Попробуйте еще раз позже.');
+                }
+            }
+
+            geminiHealthBtn.addEventListener('click', () => handleGeminiRequest('health', healthTextarea, spinnerHealth));
+            geminiReposedBtn.addEventListener('click', () => handleGeminiRequest('reposed', reposedTextarea, spinnerReposed));
+
+            // --- Telegram Web App Logic ---
             tg.MainButton.setText('Отправить записку');
             tg.MainButton.textColor = '#FFFFFF';
             tg.MainButton.color = '#2481CC';
-            function checkButtonVisibility() { const healthValue = healthTextarea.value.trim(); const reposedValue = reposedTextarea.value.trim(); if (healthValue !== '' || reposedValue !== '') { tg.MainButton.show(); } else { tg.MainButton.hide(); } }
+
+            function checkButtonVisibility() {
+                const healthValue = healthTextarea.value.trim();
+                const reposedValue = reposedTextarea.value.trim();
+
+                if (healthValue !== '' || reposedValue !== '') {
+                    tg.MainButton.show();
+                } else {
+                    tg.MainButton.hide();
+                }
+            }
+            
             healthTextarea.addEventListener('input', checkButtonVisibility);
             reposedTextarea.addEventListener('input', checkButtonVisibility);
+            
             checkButtonVisibility();
 
             tg.onEvent('mainButtonClicked', function() {
-                // --- ИЗМЕНЕННЫЙ БЛОК с ЛОГИРОВАНИЕМ ---
-                log("Главная кнопка нажата.");
-                
                 const healthNames = healthTextarea.value.trim().split('\n').filter(name => name.trim() !== '');
                 const reposedNames = reposedTextarea.value.trim().split('\n').filter(name => name.trim() !== '');
 
                 if (healthNames.length === 0 && reposedNames.length === 0) {
-                    log("Ошибка: нет имен для отправки.");
                     tg.showAlert('Пожалуйста, введите хотя бы одно имя.');
                     return;
                 }
+                
+                // Считаем количество имен
                 const healthCount = healthNames.length;
                 const reposedCount = reposedNames.length;
                 const totalCount = healthCount + reposedCount;
 
+                // Формируем объект с данными для отправки боту, включая подсчеты
                 const data = {
-                    counts: { health: healthCount, reposed: reposedCount, total: totalCount },
-                    names: { health: healthNames, reposed: reposedNames }
+                    counts: {
+                        health: healthCount,
+                        reposed: reposedCount,
+                        total: totalCount
+                    },
+                    names: {
+                        health: healthNames,
+                        reposed: reposedNames,
+                    }
                 };
                 
-                const dataString = JSON.stringify(data);
-                log(`Подготовлены данные: ${dataString}`);
+                tg.showAlert(`Отладочное сообщение:\nОтправляю ${totalCount} имен.`);
+                tg.sendData(JSON.stringify(data));
 
-                try {
-                    tg.sendData(dataString);
-                    log("tg.sendData() вызвана успешно. Ожидаем ответ от Telegram...");
-                } catch (e) {
-                    log(`КРИТИЧЕСКАЯ ОШИБКА при вызове tg.sendData(): ${e.message}`);
-                }
-                
-                log("Отображаю сообщение об успехе.");
-                // formContainer.classList.add('hidden');
-                // successMessage.classList.remove('hidden');
+                formContainer.classList.add('hidden');
+                successMessage.classList.remove('hidden');
 
                 setTimeout(function() {
                     tg.close();
-                }, 5000); // Увеличил время, чтобы успеть прочитать лог
+                }, 3000);
             });
             
             tg.expand();
@@ -115,4 +256,3 @@
     </script>
 </body>
 </html>
-
