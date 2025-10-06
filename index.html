@@ -221,6 +221,24 @@ ${names}`;
                     tg.showAlert('Пожалуйста, введите хотя бы одно имя.');
                     return;
                 }
+                
+                // Считаем количество имен
+                const healthCount = healthNames.length;
+                const reposedCount = reposedNames.length;
+                const totalCount = healthCount + reposedCount;
+
+                // Формируем объект с данными для отправки боту, включая подсчеты
+                const data = {
+                    counts: {
+                        health: healthCount,
+                        reposed: reposedCount,
+                        total: totalCount
+                    },
+                    names: {
+                        health: healthNames,
+                        reposed: reposedNames,
+                    }
+                };
 
                 const data = {
                     health: healthNames,
