@@ -213,43 +213,50 @@ ${names}`;
             
             checkButtonVisibility();
 
-            tg.onEvent('mainButtonClicked', function() {
+            async function handleFormSubmit() {
+                tg.MainButton.showProgress(); // Показываем индикатор загрузки на кнопке
+                tg.MainButton.disable();
+
                 const healthNames = healthTextarea.value.trim().split('\n').filter(name => name.trim() !== '');
                 const reposedNames = reposedTextarea.value.trim().split('\n').filter(name => name.trim() !== '');
 
-                if (healthNames.length === 0 && reposedNames.length === 0) {
-                    tg.showAlert('Пожалуйста, введите хотя бы одно имя.');
-                    return;
-                }
-                
-                // Считаем количество имен
-                const healthCount = healthNames.length;
-                const reposedCount = reposedNames.length;
-                const totalCount = healthCount + reposedCount;
-
-                // Формируем объект с данными для отправки боту, включая подсчеты
-                const data = {
-                    counts: {
-                        health: healthCount,
-                        reposed: reposedCount,
-                        total: totalCount
-                    },
-                    names: {
-                        health: healthNames,
-                        reposed: reposedNames,
-                    }
+                const dataToSend = {
+                    names: { health: healthNames, reposed: reposedNames },
+                    // Добавляем initData для аутентификации на бэкенде
+                    authData: tg.initData 
                 };
-                
-                tg.showAlert(`Отладочное сообщение:\nОтправляю ${totalCount} имен.`);
-                tg.sendData(JSON.stringify(data));
 
-                formContainer.classList.add('hidden');
-                successMessage.classList.remove('hidden');
+                // Вставьте сюда ваш Production URL из узла Webhook в n8n
+                const webhookUrl = "https://temi4p.app.n8n.cloud/webhook-test/submit-note"; 
 
-                setTimeout(function() {
-                    // tg.close();
-                }, 3000);
-            });
+                try {
+                    const response = await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dataToSend)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    // Если все успешно, показываем сообщение
+                    formContainer.classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                    tg.MainButton.hide();
+                    
+                    setTimeout(() => tg.close(), 3000);
+
+                } catch (error) {
+                    console.error('Ошибка отправки данных:', error);
+                    tg.showAlert(`Произошла ошибка: ${error.message}`);
+                } finally {
+                    tg.MainButton.hideProgress();
+                    tg.MainButton.enable();
+                }
+            }
+
+            tg.onEvent('mainButtonClicked', handleFormSubmit);
             
             tg.expand();
         });
